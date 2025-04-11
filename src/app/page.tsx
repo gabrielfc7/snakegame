@@ -112,16 +112,16 @@ export default function Home() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
-        case 'ArrowUp':
+        case 'w':
           setDirection({ x: 0, y: -1 });
           break;
-        case 'ArrowDown':
+        case 's':
           setDirection({ x: 0, y: 1 });
           break;
-        case 'ArrowLeft':
+        case 'a':
           setDirection({ x: -1, y: 0 });
           break;
-        case 'ArrowRight':
+        case 'd':
           setDirection({ x: 1, y: 0 });
           break;
       }
@@ -177,7 +177,7 @@ export default function Home() {
           </button>
         </div>
       ) : (
-        <div className="text-gray-500 mt-4">Use arrow keys to move.</div>
+        <div className="text-gray-500 mt-4">Use WASD keys to move.</div>
       )}
       {!gameOver && <div className="text-gray-500 mt-2">Food Spawn Rate: {foodSpawnRate.toFixed(2)}</div>}
     </div>
