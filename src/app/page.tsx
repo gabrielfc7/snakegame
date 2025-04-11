@@ -188,6 +188,12 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setGRID_SIZE(calculateGridSize());
+    }
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <Toaster />
