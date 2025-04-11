@@ -211,6 +211,13 @@ export default function Home() {
         <div className="text-gray-500 mt-4">Use WASD or Arrow keys to move.</div>
       )}
       {!gameOver && <div className="text-gray-500 mt-2">Food Spawn Rate: {foodSpawnRate.toFixed(2)}</div>}
+
+      {/* Ad Banner */}
+      <div className="w-full mt-8">
+        <div className="bg-yellow-200 text-gray-800 text-center p-2 rounded">
+          Ad: Support this game! Click here!
+        </div>
+      </div>
     </div>
   );
 }
