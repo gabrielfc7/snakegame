@@ -50,6 +50,7 @@ export default function Home() {
   const [gameOver, setGameOver] = useState(false);
   const [foodSpawnRate, setFoodSpawnRate] = useState(1);
   const [genAIOutput, setGenAIOutput] = useState<{suggestedFoodSpawnRate: number, reasoning: string} | null>(null);
+  const [cellSize, setCellSize] = useState(20); // Initialize cellSize
 
   const gameInterval = useRef<NodeJS.Timeout | null>(null);
 
@@ -134,7 +135,9 @@ export default function Home() {
 
   useEffect(() => {
     const handleResize = () => {
-      setGRID_SIZE(calculateGridSize());
+      const newGridSize = calculateGridSize();
+      setGRID_SIZE(newGridSize);
+      setCellSize(Math.min(window.innerWidth, window.innerHeight) / (newGridSize + 2));
     };
 
     // Only add the event listener on the client-side
@@ -188,12 +191,6 @@ export default function Home() {
     };
   }, []);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setGRID_SIZE(calculateGridSize());
-    }
-  }, []);
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <Toaster />
@@ -204,7 +201,7 @@ export default function Home() {
         </div>
       )}
       {typeof window !== 'undefined' && (
-        <Grid GRID_SIZE={GRID_SIZE} snake={snake} food={food} cellSize={Math.min(window.innerWidth, window.innerHeight) / (GRID_SIZE + 2)}/>
+        <Grid GRID_SIZE={GRID_SIZE} snake={snake} food={food} cellSize={cellSize}/>
       )}
       {gameOver ? (
         <div className="text-yellow-500 mt-4">
