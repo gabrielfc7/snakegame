@@ -153,34 +153,41 @@ export default function Home() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      let newDirection = { ...direction }; // Default to the current direction
+
       switch (e.key) {
         // WASD controls
         case 'w':
-          setDirection({ x: 0, y: -1 });
+          newDirection = { x: 0, y: -1 };
           break;
         case 's':
-          setDirection({ x: 0, y: 1 });
+          newDirection = { x: 0, y: 1 };
           break;
         case 'a':
-          setDirection({ x: -1, y: 0 });
+          newDirection = { x: -1, y: 0 };
           break;
         case 'd':
-          setDirection({ x: 1, y: 0 });
+          newDirection = { x: 1, y: 0 };
           break;
 
         // Arrow key controls
         case 'ArrowUp':
-          setDirection({ x: 0, y: -1 });
+          newDirection = { x: 0, y: -1 };
           break;
         case 'ArrowDown':
-          setDirection({ x: 0, y: 1 });
+          newDirection = { x: 0, y: 1 };
           break;
         case 'ArrowLeft':
-          setDirection({ x: -1, y: 0 });
+          newDirection = { x: -1, y: 0 };
           break;
         case 'ArrowRight':
-          setDirection({ x: 1, y: 0 });
+          newDirection = { x: 1, y: 0 };
           break;
+      }
+
+      // Prevent reversing the snake upon key press.
+      if (!(newDirection.x === -direction.x || newDirection.y === -direction.y)) {
+        setDirection(newDirection);
       }
     };
 
@@ -189,7 +196,7 @@ export default function Home() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [direction]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
