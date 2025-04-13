@@ -8,23 +8,8 @@ const calculateGridSize = () => {
   if (typeof window === 'undefined') {
     return 20;
   }
-  const screenWidth = window.innerWidth;
-  const screenHeight = window.innerHeight;
 
-  // Determine the smaller dimension to adapt the grid size
-  const smallerDimension = Math.min(screenWidth, screenHeight);
-
-  // Define a base grid size and adjust based on the smaller dimension
-  let baseGridSize = 20;
-
-  // Adjust baseGridSize based on the screen size
-  if (smallerDimension <= 400) {
-    baseGridSize = 15; // Smaller screens
-  } else if (smallerDimension > 800) {
-    baseGridSize = 25; // Larger screens
-  }
-
-  return baseGridSize;
+  return 20;
 };
 
 const INITIAL_SNAKE = [{ x: 5, y: 5 }];
@@ -41,8 +26,17 @@ const areCellsEqual = (cell1: Cell, cell2: Cell) => {
   return cell1.x === cell2.x && cell1.y === cell2.y;
 };
 
+// Helper function to generate a random color
+const getRandomColor = (excludeColor: string) => {
+  let newColor = '';
+  do {
+    newColor = `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`;
+  } while (newColor === excludeColor); // Ensure it's not the same as the excluded color
+  return newColor;
+};
+
 export default function Home() {
-  const [GRID_SIZE, setGRID_SIZE] = useState(20); // Initialize with a default value
+  const [GRID_SIZE, setGRID_SIZE] = useState(20);
   const [snake, setSnake] = useState(INITIAL_SNAKE);
   const [food, setFood] = useState(INITIAL_FOOD);
   const [direction, setDirection] = useState({ x: 1, y: 0 });
@@ -50,9 +44,11 @@ export default function Home() {
   const [gameOver, setGameOver] = useState(false);
   const [foodSpawnRate, setFoodSpawnRate] = useState(1);
   const [genAIOutput, setGenAIOutput] = useState<{suggestedFoodSpawnRate: number, reasoning: string} | null>(null);
-  const [cellSize, setCellSize] = useState(20); // Initialize cellSize
+  const [cellSize, setCellSize] = useState(20);
   const [highScore, setHighScore] = useState(0);
   const [isNewHighScore, setIsNewHighScore] = useState(false);
+  const [snakeColor, setSnakeColor] = useState('#32CD32'); // Initial snake color
+  const [moveCount, setMoveCount] = useState(0);
 
   const gameInterval = useRef<NodeJS.Timeout | null>(null);
 
@@ -64,6 +60,8 @@ export default function Home() {
     setGameOver(false);
     setFoodSpawnRate(1);
     setIsNewHighScore(false);
+    setMoveCount(0);
+    setSnakeColor('#32CD32'); // Reset snake color on game start
   }, []);
 
   const endGame = useCallback(() => {
@@ -73,7 +71,6 @@ export default function Home() {
       gameInterval.current = null;
     }
 
-    // Check if current score is a new high score
     if (score > highScore) {
       setHighScore(score);
       localStorage.setItem('highScore', score.toString());
@@ -88,12 +85,14 @@ export default function Home() {
         x: Math.floor(Math.random() * GRID_SIZE),
         y: Math.floor(Math.random() * GRID_SIZE),
       };
-    } while (snake.some(segment => areCellsEqual(segment, newFood))); // Ensure food doesn't spawn on the snake
+    } while (snake.some(segment => areCellsEqual(segment, newFood)));
 
     setFood(newFood);
   }, [snake, GRID_SIZE]);
 
   const moveSnake = useCallback(() => {
+    setMoveCount(prevCount => prevCount + 1); // Increment move count on each move
+
     setSnake(prevSnake => {
       const head = prevSnake[0];
       const newHead = {
@@ -150,10 +149,9 @@ export default function Home() {
       setCellSize(Math.min(window.innerWidth, window.innerHeight) / (newGridSize + 2));
     };
 
-    // Only add the event listener on the client-side
     if (typeof window !== 'undefined') {
       window.addEventListener('resize', handleResize);
-      handleResize(); // Initial calculation
+      handleResize();
 
       return () => {
         window.removeEventListener('resize', handleResize);
@@ -163,30 +161,22 @@ export default function Home() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      let newDirection = { ...direction }; // Default to the current direction
+      let newDirection = { ...direction };
 
       switch (e.key) {
         case 'w':
-          newDirection = { x: 0, y: -1 };
-          break;
-        case 's':
-          newDirection = { x: 0, y: 1 };
-          break;
-        case 'a':
-          newDirection = { x: -1, y: 0 };
-          break;
-        case 'd':
-          newDirection = { x: 1, y: 0 };
-          break;
         case 'ArrowUp':
           newDirection = { x: 0, y: -1 };
           break;
+        case 's':
         case 'ArrowDown':
           newDirection = { x: 0, y: 1 };
           break;
+        case 'a':
         case 'ArrowLeft':
           newDirection = { x: -1, y: 0 };
           break;
+        case 'd':
         case 'ArrowRight':
           newDirection = { x: 1, y: 0 };
           break;
@@ -205,12 +195,19 @@ export default function Home() {
   }, [direction]);
 
   useEffect(() => {
-    // Load high score from local storage on component mount
     const storedHighScore = localStorage.getItem('highScore');
     if (storedHighScore) {
       setHighScore(parseInt(storedHighScore, 10));
     }
   }, []);
+
+  // Change snake color every 5 moves
+  useEffect(() => {
+    if (moveCount > 0 && moveCount % 5 === 0) {
+      const foodColor = 'var(--destructive)'; // Get the food color
+      setSnakeColor(getRandomColor(foodColor)); // Change snake color, excluding food color
+    }
+  }, [moveCount]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -222,7 +219,7 @@ export default function Home() {
         </div>
       )}
       {typeof window !== 'undefined' && (
-        <Grid GRID_SIZE={GRID_SIZE} snake={snake} food={food} cellSize={cellSize}/>
+        <Grid GRID_SIZE={GRID_SIZE} snake={snake} food={food} cellSize={cellSize} snakeColor={snakeColor}/>
       )}
       {gameOver ? (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-zinc-800 bg-opacity-75 text-yellow-500 p-4 rounded-md text-center">
@@ -255,9 +252,10 @@ interface GridProps {
   snake: { x: number; y: number; }[];
   food: { x: number; y: number; };
   cellSize: number;
+  snakeColor: string;
 }
 
-const Grid: React.FC<GridProps> = ({ GRID_SIZE, snake, food, cellSize }) => {
+const Grid: React.FC<GridProps> = ({ GRID_SIZE, snake, food, cellSize, snakeColor }) => {
   return (
       <div
         className="grid"
@@ -277,9 +275,10 @@ const Grid: React.FC<GridProps> = ({ GRID_SIZE, snake, food, cellSize }) => {
 
           let cellColor = 'bg-zinc-800'; // Default cell color
           if (isSnake) {
-            cellColor = 'bg-primary'; // Snake color
+            cellColor = 'w-[${cellSize}px] h-[${cellSize}px]'
+            return <div key={i} className={`${cellColor}`} style={{backgroundColor: snakeColor, width: cellSize, height: cellSize}}/>;
           } else if (isFood) {
-            cellColor = 'bg-destructive'; // Food color (using destructive for red)
+            cellColor = 'bg-destructive';
           }
 
           return <div key={i} className={`${cellColor} w-[${cellSize}px] h-[${cellSize}px]`}/>;
