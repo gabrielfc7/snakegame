@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }        
+        canvas {
+            background-color: #004d40;
+            border: 1px solid #00ffff;
+            box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff;
+            border-radius: 10px;
+        }
+    </style>
+    <style>
+        .grid {
+            box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff;
+            border: 2px solid #0ff;
+            border-radius: 10px;
+            grid-template-columns: repeat(25, 20px);
+            grid-template-rows: repeat(25, 20px);
+            width: 496px;
+            height: 496px;
+            background-color: rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+            display: grid;
+        }
+
+        .grid-cell {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            box-sizing: border-box;
+            border: 1px solid transparent;
+            background-color: rgba(0, 100, 100, 0.5);
+        }
+
+        .snake {
+            background-color: #4CAF50;
+            box-shadow: 0 0 5px #0f0;
+        }
+
+        .food {
+            background-color: #FFA500;
+        }
+
+        body {
+            font-family: monospace;
+            background-color: #333;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            color: yellow;
+            margin-bottom: 1rem;
+        }
+
+        .game-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffeb3b;
+            text-shadow: 1px 1px 2px #000;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="500" height="500"></canvas>
+    <script src="script.js"></script>
+</body>
+</html>
