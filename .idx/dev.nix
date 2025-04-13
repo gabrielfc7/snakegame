@@ -8,7 +8,9 @@
     pkgs.nodejs_20
   ];
   # Sets environment variables in the workspace
-  env = {};
+  env = {
+    GOOGLE_API_KEY = "YOUR_API_KEY"; # Remember to change this to your own API key
+  };
   idx = {
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
     extensions = [
