@@ -51,6 +51,8 @@ export default function Home() {
   const [foodSpawnRate, setFoodSpawnRate] = useState(1);
   const [genAIOutput, setGenAIOutput] = useState<{suggestedFoodSpawnRate: number, reasoning: string} | null>(null);
   const [cellSize, setCellSize] = useState(20); // Initialize cellSize
+  const [highScore, setHighScore] = useState(0);
+  const [isNewHighScore, setIsNewHighScore] = useState(false);
 
   const gameInterval = useRef<NodeJS.Timeout | null>(null);
 
@@ -61,6 +63,7 @@ export default function Home() {
     setScore(0);
     setGameOver(false);
     setFoodSpawnRate(1);
+    setIsNewHighScore(false);
   }, []);
 
   const endGame = useCallback(() => {
@@ -69,7 +72,14 @@ export default function Home() {
       clearInterval(gameInterval.current);
       gameInterval.current = null;
     }
-  }, []);
+
+    // Check if current score is a new high score
+    if (score > highScore) {
+      setHighScore(score);
+      localStorage.setItem('highScore', score.toString());
+      setIsNewHighScore(true);
+    }
+  }, [score, highScore]);
 
   const generateFood = useCallback(() => {
     let newFood: Cell;
@@ -156,7 +166,6 @@ export default function Home() {
       let newDirection = { ...direction }; // Default to the current direction
 
       switch (e.key) {
-        // WASD controls
         case 'w':
           newDirection = { x: 0, y: -1 };
           break;
@@ -169,8 +178,6 @@ export default function Home() {
         case 'd':
           newDirection = { x: 1, y: 0 };
           break;
-
-        // Arrow key controls
         case 'ArrowUp':
           newDirection = { x: 0, y: -1 };
           break;
@@ -185,7 +192,6 @@ export default function Home() {
           break;
       }
 
-      // Prevent reversing the snake upon key press.
       if (!(newDirection.x === -direction.x || newDirection.y === -direction.y)) {
         setDirection(newDirection);
       }
@@ -197,6 +203,14 @@ export default function Home() {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [direction]);
+
+  useEffect(() => {
+    // Load high score from local storage on component mount
+    const storedHighScore = localStorage.getItem('highScore');
+    if (storedHighScore) {
+      setHighScore(parseInt(storedHighScore, 10));
+    }
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -211,9 +225,14 @@ export default function Home() {
         <Grid GRID_SIZE={GRID_SIZE} snake={snake} food={food} cellSize={cellSize}/>
       )}
       {gameOver ? (
-        <div className="text-yellow-500 mt-4">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-zinc-800 bg-opacity-75 text-yellow-500 p-4 rounded-md text-center">
           Game Over! Your score: {score}
-          <button className="bg-green-500 text-white px-4 py-2 rounded ml-4" onClick={startGame}>
+          {isNewHighScore ? (
+            <div className="text-green-500">New High Score!</div>
+          ) : (
+            <div>High Score: {highScore}</div>
+          )}
+          <button className="bg-green-500 text-white px-4 py-2 rounded ml-4 mt-2" onClick={startGame}>
             Play Again
           </button>
         </div>
@@ -222,7 +241,6 @@ export default function Home() {
       )}
       {!gameOver && <div className="text-gray-500 mt-2">Food Spawn Rate: {foodSpawnRate.toFixed(2)}</div>}
 
-      {/* Ad Banner */}
       <div className="w-full mt-8">
         <div className="bg-yellow-200 text-gray-800 text-center p-2 rounded">
           Ad: Support this game! Click here!
